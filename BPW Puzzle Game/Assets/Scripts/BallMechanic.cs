@@ -9,15 +9,17 @@ public class BallMechanic : MonoBehaviour
     //public Transform ball2;
 
     public Transform firePoint;
-    public GameObject ballP1;
-    public GameObject ballP2;
-    public GameObject ballP3;
+    public GameObject ballPrefab;
 
     public float ballForce = 13f;
     public int balls;
     public int maxBalls = 4;
-    private bool spawn = true;
-    private bool move = true;
+    GameObject currentBall;
+
+    
+    public float travelTime;
+    private bool spawn = false;
+
 
     void Update()
     {
@@ -29,34 +31,46 @@ public class BallMechanic : MonoBehaviour
         //    (ball1.transform.position + ball2.transform.position) / 2;
         //}
         //Recall all balls
+
         if (Input.GetKey("e"))
         {
             Recall();
         }
 
-        if (Input.GetMouseButton(0) && balls < maxBalls)
+        if (Input.GetMouseButtonDown(0) && balls < maxBalls)
         {
-            if (spawn == true)
-            {
-                GameObject ball1 = Instantiate(ballP1, firePoint.position, firePoint.rotation);
-                Rigidbody2D rb = ballP1.GetComponent<Rigidbody2D>();
-                if (move == true)
-                {
-                    rb.AddForce(firePoint.up * ballForce, ForceMode2D.Impulse);
-                } else
-                {
-                    rb.velocity = Vector3.zero;
-                    rb.angularVelocity = 0f;
-                    rb.Sleep();
-                }
-                Debug.Log("moving");
-                balls++;
-                spawn = false;
-            }
-        } else
+            ThrowBall();
+        }
+
+        if (Input.GetMouseButtonUp(0) && currentBall || travelTime > 0.4)
         {
-            move = false;
-        } 
+            StopBall();
+        }
+
+        if (currentBall && spawn == true)
+        {
+            travelTime += Time.deltaTime;
+        }
+    }
+
+    void ThrowBall()        
+    {
+        List<GameObject> listOfBalls = new List<GameObject>();
+        listOfBalls.Add(Instantiate(ballPrefab, firePoint.position, firePoint.rotation) as GameObject);
+        Rigidbody2D rb = currentBall.GetComponent<Rigidbody2D>();
+        rb.AddForce(firePoint.up* ballForce, ForceMode2D.Impulse);
+        balls++;
+        spawn = true;
+    }
+
+    void StopBall()
+    {
+        Rigidbody2D rb = currentBall.GetComponent<Rigidbody2D>();
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = 0f;
+        rb.Sleep();
+        travelTime = 0;
+        spawn = false;
     }
 
     void Recall()
