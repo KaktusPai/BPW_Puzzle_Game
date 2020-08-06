@@ -4,15 +4,11 @@ using UnityEngine;
 
 public class BallScript : MonoBehaviour
 {
-
-
-    void Start()
+    void OnTriggerStay2D(Collider2D collider)
     {
-
-    }
-
-    void Update()
-    {
-       
+        if (gameObject.GetComponent<Rigidbody2D>().velocity == Vector2.zero)
+        {
+            Destroy(gameObject);
+        }
     }
 }

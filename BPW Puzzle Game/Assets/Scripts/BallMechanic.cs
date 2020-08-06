@@ -12,18 +12,15 @@ public class BallMechanic : MonoBehaviour
     public GameObject ballPrefab;
 
     public float ballForce = 13f;
-    public int balls;
     public int maxBalls = 4;
     GameObject currentBall;
 
-    
+
     public float travelTime;
     private bool spawn = false;
 
-
     void Update()
     {
-
         ////teleport to the middle of the balls
         //if (input.getkey("space"))
         //{
@@ -37,12 +34,12 @@ public class BallMechanic : MonoBehaviour
             Recall();
         }
 
-        if (Input.GetMouseButtonDown(0) && balls < maxBalls)
+        if (Input.GetMouseButtonDown(0) && GameObject.FindGameObjectsWithTag("ball").Length < maxBalls)
         {
             ThrowBall();
         }
 
-        if (Input.GetMouseButtonUp(0) && currentBall || travelTime > 0.4)
+        if (Input.GetMouseButtonUp(0) && currentBall || travelTime > 0.4 && currentBall)
         {
             StopBall();
         }
@@ -51,15 +48,18 @@ public class BallMechanic : MonoBehaviour
         {
             travelTime += Time.deltaTime;
         }
+
+        if (Input.GetKeyDown("space")) 
+        {
+            Teleport();
+        }
     }
 
-    void ThrowBall()        
+    void ThrowBall()
     {
-        List<GameObject> listOfBalls = new List<GameObject>();
-        listOfBalls.Add(Instantiate(ballPrefab, firePoint.position, firePoint.rotation) as GameObject);
+        currentBall = (Instantiate(ballPrefab, firePoint.position, firePoint.rotation) as GameObject);
         Rigidbody2D rb = currentBall.GetComponent<Rigidbody2D>();
-        rb.AddForce(firePoint.up* ballForce, ForceMode2D.Impulse);
-        balls++;
+        rb.AddForce(firePoint.up * ballForce, ForceMode2D.Impulse);
         spawn = true;
     }
 
@@ -68,7 +68,6 @@ public class BallMechanic : MonoBehaviour
         Rigidbody2D rb = currentBall.GetComponent<Rigidbody2D>();
         rb.velocity = Vector3.zero;
         rb.angularVelocity = 0f;
-        rb.Sleep();
         travelTime = 0;
         spawn = false;
     }
@@ -76,6 +75,21 @@ public class BallMechanic : MonoBehaviour
     void Recall()
     {
         Destroy(GameObject.FindWithTag("ball"));
-        balls = 0;
+    }
+
+    void Teleport()
+    {
+        Vector3 meanVector = Vector3.zero;
+        GameObject[] balls = GameObject.FindGameObjectsWithTag("ball");
+        if (balls.Length > 0)
+        {
+            for (int i = 0; i < balls.Length; i++)
+            {
+                GameObject ball = balls[i];
+                meanVector += ball.transform.position;
+            }
+
+            player.transform.position = meanVector / balls.Length;
+        }
     }
 }
