@@ -5,14 +5,12 @@ using UnityEngine;
 public class BallMechanic : MonoBehaviour
 {
     public GameObject player;
-    //public Transform ball1;
-    //public Transform ball2;
 
     public Transform firePoint;
     public GameObject ballPrefab;
 
     public float ballForce = 13f;
-    public int maxBalls = 4;
+    public int maxBalls = 3;
     GameObject currentBall;
 
 
@@ -21,14 +19,6 @@ public class BallMechanic : MonoBehaviour
 
     void Update()
     {
-        ////teleport to the middle of the balls
-        //if (input.getkey("space"))
-        //{
-        //    player.transform.position =
-        //    (ball1.transform.position + ball2.transform.position) / 2;
-        //}
-        //Recall all balls
-
         if (Input.GetKey("e"))
         {
             Recall();
@@ -72,7 +62,7 @@ public class BallMechanic : MonoBehaviour
         spawn = false;
     }
 
-    void Recall()
+    public void Recall()
     {
         Destroy(GameObject.FindWithTag("ball"));
     }
@@ -81,14 +71,13 @@ public class BallMechanic : MonoBehaviour
     {
         Vector3 meanVector = Vector3.zero;
         GameObject[] balls = GameObject.FindGameObjectsWithTag("ball");
-        if (balls.Length > 0)
+        if (balls.Length > 1)
         {
             for (int i = 0; i < balls.Length; i++)
             {
                 GameObject ball = balls[i];
                 meanVector += ball.transform.position;
             }
-
             player.transform.position = meanVector / balls.Length;
         }
     }

@@ -7,6 +7,6 @@ public class BigWin : MonoBehaviour
 { 
     void OnTriggerEnter2D(Collider2D Other)
     {
-        SceneManager.LoadScene("Level2");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 }

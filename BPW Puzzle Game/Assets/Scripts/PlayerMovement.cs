@@ -10,9 +10,12 @@ public class PlayerMovement : MonoBehaviour
     public Rigidbody2D rb;
     public Rigidbody2D throwrb;
     public Camera cam;
+    public Transform player;
+    public Transform respawnPoint;
 
     Vector2 movement;
     Vector2 mousePos;
+
 
     // Input
     void Update()
@@ -32,4 +35,16 @@ public class PlayerMovement : MonoBehaviour
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
         throwrb.rotation = angle;
     }
+
+    public void Retry()
+    {
+        player.transform.position = respawnPoint.transform.position;
+        GameObject[] balls = GameObject.FindGameObjectsWithTag("ball");
+        for (int i = 0; i < balls.Length; i++)
+        {
+            GameObject ball = balls[i];
+            Destroy(ball);
+        }
+    }
+
 }
