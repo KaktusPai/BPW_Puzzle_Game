@@ -11,11 +11,18 @@ public class BallMechanic : MonoBehaviour
 
     public float ballForce = 13f;
     public int maxBalls = 3;
-    GameObject currentBall;
-
-
-    public float travelTime;
+    private float travelTime;
     private bool spawn = false;
+    GameObject currentBall;
+    
+    GameObject firstBall;
+    public float fieldOfImpact;
+    public LayerMask layerToHit;
+    public Sprite explodeBall;
+    public Sprite normalBall;
+    public Sprite brokenWood;
+    public GameObject explosionPrefab;
+
 
     void Update()
     {
@@ -29,7 +36,7 @@ public class BallMechanic : MonoBehaviour
             ThrowBall();
         }
 
-        if (Input.GetMouseButtonUp(0) && currentBall || travelTime > 0.4 && currentBall)
+        if (Input.GetMouseButtonUp(0) && currentBall || travelTime > 0.5 && currentBall)
         {
             StopBall();
         }
@@ -39,11 +46,13 @@ public class BallMechanic : MonoBehaviour
             travelTime += Time.deltaTime;
         }
 
-        if (Input.GetKeyDown("space")) 
+        if (Input.GetKeyDown("space"))
         {
-            Teleport();
+            TeleportOrExplode();
         }
-    }
+
+        BallUpdate();
+    } 
 
     void ThrowBall()
     {
@@ -62,14 +71,15 @@ public class BallMechanic : MonoBehaviour
         spawn = false;
     }
 
-    public void Recall()
+    void Recall()
     {
         Destroy(GameObject.FindWithTag("ball"));
     }
 
-    void Teleport()
-    {
+    void TeleportOrExplode()
+    {        
         Vector3 meanVector = Vector3.zero;
+        float dist = 0f;
         GameObject[] balls = GameObject.FindGameObjectsWithTag("ball");
         if (balls.Length > 1)
         {
@@ -77,8 +87,59 @@ public class BallMechanic : MonoBehaviour
             {
                 GameObject ball = balls[i];
                 meanVector += ball.transform.position;
+                dist += Vector3.Distance(balls[0].transform.position, balls[1].transform.position);
+                Debug.Log("dist: " + dist);
             }
-            player.transform.position = meanVector / balls.Length;
+            if (dist < 0.7 || dist == 0)
+            {
+                Explode();
+                Debug.Log("Exploding!");
+            } else
+            {
+                player.transform.position = meanVector / balls.Length;
+            }
+        }
+    }  
+    
+    void BallUpdate() 
+    {
+        float dist = 0f;
+        GameObject[] balls = GameObject.FindGameObjectsWithTag("ball");
+        for (int i = 0; i < balls.Length; i++)
+        {
+            if (balls.Length > 1)
+            {
+                firstBall = balls[0];
+                dist += Vector3.Distance(balls[0].transform.position, balls[1].transform.position);
+            }
+        }
+        if (dist < 0.7 && dist > 0)
+        {
+            balls[0].GetComponent<SpriteRenderer>().sprite = explodeBall;
+            balls[1].GetComponent<SpriteRenderer>().sprite = explodeBall;
+        } else if (dist > 0.7)
+        {
+            balls[0].GetComponent<SpriteRenderer>().sprite = normalBall;
+            balls[1].GetComponent<SpriteRenderer>().sprite = normalBall;
+        }
+    }
+
+    void Explode()
+    {
+        Collider2D[] objects = Physics2D.OverlapCircleAll(firstBall.transform.position, fieldOfImpact, layerToHit);
+        foreach (Collider2D obj in objects)
+        {
+            Debug.Log(obj);
+            BoxCollider2D woodCol = obj.GetComponent<BoxCollider2D>();
+            woodCol.enabled = false;
+            obj.GetComponent<SpriteRenderer>().sprite = brokenWood;
+        }
+        Instantiate(explosionPrefab, firstBall.transform.position, firstBall.transform.rotation);
+        GameObject[] balls = GameObject.FindGameObjectsWithTag("ball");
+        for (int i = 0; i < balls.Length; i++)
+        {
+            GameObject ball = balls[i];
+            Destroy(ball);
         }
     }
 }

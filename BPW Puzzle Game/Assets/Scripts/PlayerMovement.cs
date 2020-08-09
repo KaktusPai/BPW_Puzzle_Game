@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -11,7 +12,6 @@ public class PlayerMovement : MonoBehaviour
     public Rigidbody2D throwrb;
     public Camera cam;
     public Transform player;
-    public Transform respawnPoint;
 
     Vector2 movement;
     Vector2 mousePos;
@@ -38,13 +38,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void Retry()
     {
-        player.transform.position = respawnPoint.transform.position;
-        GameObject[] balls = GameObject.FindGameObjectsWithTag("ball");
-        for (int i = 0; i < balls.Length; i++)
-        {
-            GameObject ball = balls[i];
-            Destroy(ball);
-        }
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
 }
